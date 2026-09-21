@@ -1,1146 +1,582 @@
-<!DOCTYPE html>
-<html lang="tr" class="h-full scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bilişim Etiği ve CEI 10 Temel İlkesi | İnteraktif Sunum</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Outfit & Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        heading: ['Outfit', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#ecfeff',
-                            100: '#cffaff',
-                            400: '#22d3ee',
-                            500: '#06b6d4',
-                            600: '#0891b2',
-                            900: '#164e63',
-                        },
-                        accent: {
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                        }
-                    },
-                    animation: {
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-10px)' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+<!-- Overview Button -->
+<button id="overview-btn" class="fixed top-4 left-4 z-50 p-2 text-xl text-cei-accent-cyan hover:text-white bg-slate-800/80 rounded-full glass-card border border-white/10" title="Slayt Genel Bakış">
+    <i class="fas fa-th-large"></i>
+</button>
+<!-- Fullscreen Button -->
+<button id="fullscreen-btn" class="fixed top-4 right-4 z-50 p-2 text-xl text-cei-accent-indigo hover:text-white bg-slate-800/80 rounded-full glass-card border border-white/10" title="Tam Ekran">
+    <i class="fas fa-expand"></i>
+</button>
+<!-- Progress Bar -->
+<div class="fixed top-0 left-0 h-1 bg-cei-accent-cyan z-50" id="progress-bar" style="width: 0%;"></div>
 
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #090d16;
-            color: #f8fafc;
-            overflow: hidden;
-            user-select: none;
-        }
+<!-- MAIN SLIDE CONTAINER -->
+<div id="slide-container" class="relative w-screen h-screen">
 
-        h1, h2, h3, h4, .font-heading {
-            font-family: 'Outfit', sans-serif;
-        }
-
-        .glass-card {
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-        }
-
-        .glass-card-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .glass-card-hover:hover {
-            border-color: rgba(6, 182, 212, 0.4);
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(6, 182, 212, 0.15);
-        }
-
-        .glow-effect {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(90px);
-            pointer-events: none;
-            opacity: 0.35;
-            z-index: 0;
-        }
-
-        /* Slide Transition Animations */
-        .slide {
-            display: none;
-            opacity: 0;
-            transform: scale(0.98) translateY(12px);
-            transition: opacity 0.45s ease, transform 0.45s ease;
-        }
-
-        .slide.active {
-            display: flex;
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-
-        /* Scrollbar custom for slide content */
-        .custom-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scroll::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.5);
-            border-radius: 8px;
-        }
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background: rgba(6, 182, 212, 0.3);
-            border-radius: 8px;
-        }
-        .custom-scroll::-webkit-scrollbar-thumb:hover {
-            background: rgba(6, 182, 212, 0.6);
-        }
-
-        /* Badge glow */
-        .badge-glow {
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
-        }
-    </style>
-</head>
-<body class="h-screen w-screen flex flex-col justify-between relative overflow-hidden bg-slate-950 text-slate-100">
-
-    <!-- Ambient Glowing Background Elements -->
-    <div class="glow-effect w-[500px] h-[500px] bg-cyan-600 -top-24 -left-24 animate-pulse-slow"></div>
-    <div class="glow-effect w-[600px] h-[600px] bg-indigo-600 -bottom-32 -right-32 animate-pulse-slow" style="animation-delay: 2s;"></div>
-    <div class="glow-effect w-[350px] h-[350px] bg-sky-500 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20"></div>
-
-    <!-- Top Navigation & Status Bar -->
-    <header class="relative z-20 w-full px-6 py-4 flex items-center justify-between border-b border-slate-800/60 bg-slate-950/40 backdrop-blur-md">
-        <!-- Logo / Title -->
-        <div class="flex items-center gap-3 cursor-pointer" onclick="goToSlide(0)">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-cyan-500/20">
-                <i class="fa-solid fa-shield-halved"></i>
+    <!-- SLIDE 1: Cover -->
+    <div id="slide-1" class="slide active-slide flex flex-col justify-center items-center text-center p-8 bg-cei-primary bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:32px_32px]">
+        <div class="glass-card p-12 rounded-3xl border border-cei-accent-indigo/20 shadow-glow-indigo flex flex-col items-center">
+            <!-- Visual -->
+            <div class="glowing-image-frame overflow-hidden rounded-2xl mb-8 w-full max-w-4xl h-80 md:h-96">
+                <img src="image_1.png" alt="Bilişim Etiği Kavramsal İllüstrasyonu" class="w-full h-full object-cover"/>
             </div>
-            <div>
-                <h1 class="text-base font-bold tracking-wide font-heading text-slate-100 flex items-center gap-2">
-                    Bilişim Etiği <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-sans">CEI 10 İlke</span>
-                </h1>
-                <p class="text-xs text-slate-400 hidden sm:block">Computer Ethics Institute Dijital Standartları</p>
-            </div>
-        </div>
-
-        <!-- Top Controls & Slide Number Indicator -->
-        <div class="flex items-center gap-3">
-            <div id="slide-indicator" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-2">
-                <i class="fa-regular fa-compass text-cyan-400"></i>
-                <span>Slayt <span id="current-slide-num" class="text-cyan-400 font-bold">1</span> / <span id="total-slides-num">13</span></span>
-            </div>
-
-            <button onclick="toggleGridModal()" title="Tüm Slaytlar Overview" class="w-9 h-9 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-cyan-400 transition-colors flex items-center justify-center">
-                <i class="fa-solid fa-border-all"></i>
-            </button>
-
-            <button onclick="toggleFullScreen()" title="Tam Ekran" class="w-9 h-9 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-cyan-400 transition-colors flex items-center justify-center">
-                <i id="fullscreen-icon" class="fa-solid fa-expand"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- Top Progress Bar -->
-    <div class="w-full bg-slate-900/80 h-1.5 relative z-20 overflow-hidden">
-        <div id="progress-bar" class="h-full bg-gradient-to-r from-cyan-500 via-sky-400 to-indigo-500 transition-all duration-300 ease-out" style="width: 0%;"></div>
-    </div>
-
-    <!-- Main Presentation Container -->
-    <main class="relative z-10 flex-1 w-full max-w-7xl mx-auto p-4 md:p-8 flex items-center justify-center overflow-hidden">
-        
-        <!-- SLIDE 1: HERO TITLE SLIDE -->
-        <section class="slide active flex-col items-center justify-center text-center w-full h-full max-h-[720px] glass-card rounded-3xl p-6 md:p-12 relative overflow-hidden border border-slate-700/50">
-            <div class="absolute -right-20 -bottom-20 opacity-10 text-cyan-400 text-[260px] pointer-events-none">
-                <i class="fa-solid fa-scale-balanced"></i>
-            </div>
-            
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs md:text-sm font-semibold mb-6 badge-glow">
-                <i class="fa-solid fa-certificate"></i> DİJİTAL ETİK VE ETİK BİLİŞİM STANDARTLARI
-            </div>
-
-            <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold font-heading tracking-tight mb-6 text-white leading-tight">
-                BİLİŞİM ETİĞİ VE <br/>
-                <span class="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">
-                    CEI 10 TEMEL İLKESİ
-                </span>
+            <h1 class="text-6xl md:text-7xl font-extrabold tracking-tighter leading-tight bg-gradient-to-r from-cei-accent-cyan via-cei-accent-indigo to-cei-accent-violet bg-clip-text text-transparent">
+                BİLİŞİM ETİĞİ
             </h1>
-
-            <p class="text-slate-300 text-sm md:text-lg max-w-3xl mb-10 leading-relaxed font-light">
-                Computer Ethics Institute (Bilgisayar Etik Enstitüsü) tarafından tanımlanan evrensel ilkeler ışığında, dijital dünyada dürüstlük, güvenlik, mahremiyet ve toplumsal sorumluluk rehberi.
+            <p class="text-xl md:text-2xl mt-6 text-slate-300 max-w-2xl font-medium">
+                Bilgisayar Etik Enstitüsü (CEI) Tarafından Geliştirilen 10 Temel İlke ve Dijital Dünyada Sorumlu Davranış Rehberi
             </p>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-3xl mb-10 text-left">
-                <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-start gap-3">
-                    <div class="p-3 rounded-xl bg-cyan-500/10 text-cyan-400 font-bold"><i class="fa-solid fa-calendar-check text-xl"></i></div>
-                    <div>
-                        <div class="text-xs text-slate-400 font-medium">Tarihçe</div>
-                        <div class="text-sm font-semibold text-slate-200">1992 (Washington DC)</div>
-                    </div>
-                </div>
-                <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-start gap-3">
-                    <div class="p-3 rounded-xl bg-indigo-500/10 text-indigo-400 font-bold"><i class="fa-solid fa-list-check text-xl"></i></div>
-                    <div>
-                        <div class="text-xs text-slate-400 font-medium">Kapsam</div>
-                        <div class="text-sm font-semibold text-slate-200">10 Evrensel Kural</div>
-                    </div>
-                </div>
-                <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-start gap-3">
-                    <div class="p-3 rounded-xl bg-sky-500/10 text-sky-400 font-bold"><i class="fa-solid fa-user-shield text-xl"></i></div>
-                    <div>
-                        <div class="text-xs text-slate-400 font-medium">Hedef</div>
-                        <div class="text-sm font-semibold text-slate-200">Sorumlu Dijital Yurttaşlık</div>
-                    </div>
-                </div>
-            </div>
-
-            <button onclick="nextSlide()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-bold text-base tracking-wide shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 transition-all duration-300 flex items-center gap-3">
-                <span>Sunuma Başla</span>
-                <i class="fa-solid fa-arrow-right"></i>
-            </button>
-        </section>
-
-        <!-- SLIDE 2: INTRO & WHAT IS COMPUTER ETHICS -->
-        <section class="slide flex-col w-full h-full max-h-[720px] glass-card rounded-3xl p-6 md:p-10 border border-slate-700/50 overflow-y-auto custom-scroll">
-            <!-- Header -->
-            <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
-                <div>
-                    <span class="text-xs font-bold text-cyan-400 tracking-wider uppercase">Giriş & Kavramsal Çerçeve</span>
-                    <h2 class="text-2xl sm:text-4xl font-bold font-heading text-white mt-1">Bilişim Etiği Nedir ve Neden Önemlidir?</h2>
-                </div>
-                <div class="p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center gap-2 self-start md:self-auto">
-                    <i class="fa-solid fa-brain text-xl"></i>
-                    <span class="text-xs font-semibold">Dijital Çağda Ahlak & Güvenlik</span>
-                </div>
-            </div>
-
-            <!-- Grid Layout -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
-                <!-- Left Box -->
-                <div class="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-lg font-bold text-cyan-300 mb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-laptop-code"></i> Bilişim Etiğinin Tanımı
-                        </h3>
-                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
-                            <strong>Bilişim Etiği</strong>, bilgisayar ve teknolojinin kullanımı sırasında bireylerin, kurumların ve yazılımcıların uyması gereken ahlaki kuralları, hakları ve sorumlulukları inceleyen alandır.
-                        </p>
-                        <p class="text-slate-400 text-xs leading-relaxed">
-                            Teknoloji nötrdür; ancak onu kullanan insanların niyetleri, davranışları ve algoritmaları toplumsal hayatı doğrudan şekillendirir.
-                        </p>
-                    </div>
-                    <div class="mt-6 p-4 rounded-xl bg-slate-950/60 border-l-4 border-cyan-500 text-xs text-slate-300">
-                        <span class="font-bold text-cyan-400">Temel Amaç:</span> İnsan haklarını korumak, siber zararları önlemek ve adil bir dijital ekosistem inşa etmektir.
-                    </div>
-                </div>
-
-                <!-- Right Box -->
-                <div class="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-lg font-bold text-indigo-300 mb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-building-columns"></i> Computer Ethics Institute (CEI)
-                        </h3>
-                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
-                            1992 yılında Washington D.C.'de kurulan <strong>Bilgisayar Etik Enstitüsü (CEI)</strong>, teknolojinin hızla yaygınlaştığı bir dönemde dijital davranışlar için evrensel bir rehber hazırlamıştır.
-                        </p>
-                        <p class="text-slate-400 text-xs leading-relaxed">
-                            Hazırlanan <strong>"10 Temel İlke"</strong>, günümüz siber güvenlik normlarının, KVKK/GDPR düzenlemelerinin ve Yapay Zeka Etiği standartlarının tarihsel temelini oluşturur.
-                        </p>
-                    </div>
-
-                    <div class="mt-6 grid grid-cols-2 gap-3 text-center">
-                        <div class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
-                            <div class="text-indigo-400 font-extrabold text-lg">1992</div>
-                            <div class="text-[10px] text-slate-400">İlk Yayın Yılı</div>
-                        </div>
-                        <div class="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
-                            <div class="text-cyan-400 font-extrabold text-lg">Evrensel</div>
-                            <div class="text-[10px] text-slate-400">Kabul Gören İlke</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SLIDE 3: PRINCIPLE 1 -->
-        <section class="slide flex-col w-full h-full max-h-[720px] glass-card rounded-3xl p-6 md:p-10 border border-slate-700/50 overflow-y-auto custom-scroll">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold">
-                    <i class="fa-solid fa-1"></i> İLKE 01 / 10
-                </div>
-                <span class="text-xs text-slate-400">Temel Kural: Zarar Vermeme</span>
-            </div>
-
-            <div class="mb-6">
-                <h2 class="text-2xl sm:text-4xl font-bold font-heading text-white leading-tight">
-                    "Bilgisayar başka insanlara zarar vermek için kullanılamaz."
-                </h2>
-                <p class="text-cyan-400 text-sm font-semibold mt-2">Zarar Vermeme İlkesi (Non-Maleficence)</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Detailed explanation -->
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-200 mb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-shield-virus text-red-400"></i> İlkenin Kapsamı
-                        </h3>
-                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
-                            Bilgisayarlar ve dijital ağlar; hiçbir şekilde bireylerin fiziksel, psikolojik, finansal veya itibar kayıplarına uğratılması amacıyla bir silah ya da araç olarak kullanılamaz.
-                        </p>
-                        <ul class="text-xs text-slate-400 space-y-2">
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-xmark text-red-400"></i> Malicious Software (Virüs, Fidye Yazılımı) üretmek.</li>
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-xmark text-red-400"></i> Sistemlere izinsiz sızarak felce uğratmak (DDoS).</li>
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-xmark text-red-400"></i> İnternet üzerinden taciz veya siber zorbalık yapmak.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Scenario Example -->
-                <div class="p-6 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-red-950/30 border border-red-500/20 flex flex-col justify-between">
-                    <div>
-                        <div class="text-xs font-bold text-red-400 uppercase tracking-wider mb-2">Gerçek Hayat Senaryosu</div>
-                        <h4 class="text-base font-bold text-white mb-2">Fidye Yazılımı (Ransomware) Saldırıları</h4>
-                        <p class="text-slate-300 text-xs leading-relaxed">
-                            Bir hastanenin bilgi yönetim sistemine zararlı yazılım bulaştırarak verileri şifrelemek ve fidye talep etmek. Bu durum hastaların tedavi süreçlerini aksatarak hayati tehlike yaratır ve bu ilkenin doğrudan ağır ihlalidir.
-                        </p>
-                    </div>
-                    <div class="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-[11px] text-red-300">
-                        <strong>Etik Uyarı:</strong> Yazdığınız veya çalıştırdığınız kod başkasının hayatına veya işine zarar veriyorsa, etik sınır aşılmıştır.
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SLIDE 4: PRINCIPLE 2 -->
-        <section class="slide flex-col w-full h-full max-h-[720px] glass-card rounded-3xl p-6 md:p-10 border border-slate-700/50 overflow-y-auto custom-scroll">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold">
-                    <i class="fa-solid fa-2"></i> İLKE 02 / 10
-                </div>
-                <span class="text-xs text-slate-400">Temel Kural: Çalışmalara Saygı</span>
-            </div>
-
-            <div class="mb-6">
-                <h2 class="text-2xl sm:text-4xl font-bold font-heading text-white leading-tight">
-                    "Başka insanların bilgisayar çalışmaları karıştırılamaz."
-                </h2>
-                <p class="text-cyan-400 text-sm font-semibold mt-2">Çalışma Süreçlerini Engellememe İlkesi</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-200 mb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-diagram-project text-amber-400"></i> İş Akışına Müdahale Etmeme
-                        </h3>
-                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
-                            Diğer insanların dijital ortamda sürdürdüğü projelere, kod geliştirme süreçlerine, veri tabanlarına veya günlük iş akışlarına kasten müdahale etmek, yavaşlatmak ya da engellemek etik dışıdır.
-                        </p>
-                        <ul class="text-xs text-slate-400 space-y-2">
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-exclamation text-amber-400"></i> Ortak çalışma alanlarındaki dosyaları sabote etmek.</li>
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-exclamation text-amber-400"></i> Ağ bant genişliğini aşırı doldurarak başkalarını engellemek.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <div class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">Örnek Senaryo</div>
-                        <h4 class="text-base font-bold text-white mb-2">Ortak Kod Deposu (Git) Sabotajı</h4>
-                        <p class="text-slate-300 text-xs leading-relaxed">
-                            Bir ekip üyesinin geliştirmekte olduğu projeyi çekememesi veya bilerek hatalı PR (Pull Request) atarak geliştirme sürecini durdurmak bu ilkeyi ihlal eder. İş birliği ortamları karşılıklı saygı gerektirir.
-                        </p>
-                    </div>
-                    <div class="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-300">
-                        <strong>Temel İlke:</strong> Dijital çalışma alanı fiziki çalışma masası gibidir; izin almadan kimsenin projesine dokunulamaz.
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SLIDE 5: PRINCIPLE 3 -->
-        <section class="slide flex-col w-full h-full max-h-[720px] glass-card rounded-3xl p-6 md:p-10 border border-slate-700/50 overflow-y-auto custom-scroll">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold">
-                    <i class="fa-solid fa-3"></i> İLKE 03 / 10
-                </div>
-                <span class="text-xs text-slate-400">Temel Kural: Gizlilik ve Mahremiyet</span>
-            </div>
-
-            <div class="mb-6">
-                <h2 class="text-2xl sm:text-4xl font-bold font-heading text-white leading-tight">
-                    "Bilgisayar ortamında başka insanların dosyaları karıştırılamaz."
-                </h2>
-                <p class="text-cyan-400 text-sm font-semibold mt-2">Kişisel Gizlilik ve Mahremiyet (Privacy)</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-200 mb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-lock text-emerald-400"></i> Veri Gizliliği Hakları
-                        </h3>
-                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
-                            Kullanıcıların özel mesajları, e-postaları, fotoğrafları, tıbbi verileri ve kişisel belgeleri mahremdir. Bir sisteme erişim yetkiniz olsa dahi izinsiz kurcalamak etiğe aykırıdır.
-                        </p>
-                        <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300">
-                            <strong>KVKK ve GDPR Bağlantısı:</strong> Bu ilke modern Kişisel Verileri Koruma Kanunlarının ve veri gizliliği yasalarının direkt esin kaynağıdır.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">Örnek Senaryo</div>
-                        <h4 class="text-base font-bold text-white mb-2">Sistem Yöneticisinin (SysAdmin) Yetki Suistimali</h4>
-                        <p class="text-slate-300 text-xs leading-relaxed">
-                            Şirket sunucusuna tam yetkili olan bir sistem yöneticisinin, yöneticilerin veya çalışanların özel yazışmalarını meraktan okuması. Yetkiye sahip olmak, izinsiz gözetleme hakkı vermez!
-                        </p>
-                    </div>
-                    <div class="mt-4 p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-400">
-                        <i class="fa-solid fa-key text-emerald-400 mr-1"></i> "Başkalarının mektubunu izinsiz açmak ne ise, e-postasını okumak da odur."
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SLIDE 6: PRINCIPLE 4 -->
-        <section class="slide flex-col w-full h-full max-h-[720px] glass-card rounded-3xl p-6 md:p-10 border border-slate-700/50 overflow-y-auto custom-scroll">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold">
-                    <i class="fa-solid fa-4"></i> İLKE 04 / 10
-                </div>
-                <span class="text-xs text-slate-400">Temel Kural: Siber Hırsızlık</span>
-            </div>
-
-            <div class="mb-6">
-                <h2 class="text-2xl sm:text-4xl font-bold font-heading text-white leading-tight">
-                    "Bilgisayar hırsızlık yapmak için kullanılamaz."
-                </h2>
-                <p class="text-cyan-400 text-sm font-semibold mt-2">Dijital Varlıkların ve Bilginin Korunması</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-200 mb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-hand-holding-dollar text-purple-400"></i> Dijital Hırsızlık Türleri
-                        </h3>
-                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
-                            Bilgisayarlar ve dijital ağlar; para, finansal veri, şirket sırları, fikri mülkiyet ya da kişisel kimlik bilgilerini çalmak için bir soygun aracı olarak kullanılamaz.
-                        </p>
-                        <ul class="text-xs text-slate-400 space-y-2">
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-mask text-purple-400"></i> Kimlik Avı (Phishing) ile banka hesabı ele geçirmek.</li>
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-mask text-purple-400"></i> Ticari sırları veya müşteri veritabanlarını çalmak.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <div class="text-xs font-bold text-purple-400 uppercase tracking-wider mb-2">Örnek Senaryo</div>
-                        <h4 class="text-base font-bold text-white mb-2">Sahte Ödeme Arayüzü Kullanımı</h4>
-                        <p class="text-slate-300 text-xs leading-relaxed">
-                            Gerçek bir e-ticaret sitesini birebir taklit ederek kullanıcıların kredi kartı bilgilerini gizlice veritabanına kaydetmek. Dijital suçlar da fiziksel suçlar kadar ağır yaptırımlara sahiptir.
-                        </p>
-                    </div>
-                    <div class="mt-4 p-3 rounded-xl bg-purple-500/10 border border-purple-500/30 text-[11px] text-purple-300">
-                        <strong>Dijital Dürüstlük:</strong> İnternet ortamında görünmez olmak yapılan eylemi suç veya etik dışı olmaktan çıkarmaz.
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SLIDE 7: PRINCIPLE 5 -->
-        <section class="slide flex-col w-full h-full max-h-[720px] glass-card rounded-3xl p-6 md:p-10 border border-slate-700/50 overflow-y-auto custom-scroll">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold">
-                    <i class="fa-solid fa-5"></i> İLKE 05 / 10
-                </div>
-                <span class="text-xs text-slate-400">Temel Kural: Doğruluk & Yalan Bilgi</span>
-            </div>
-
-            <div class="mb-6">
-                <h2 class="text-2xl sm:text-4xl font-bold font-heading text-white leading-tight">
-                    "Bilgisayar yalan bilgiyi yaymak için kullanılamaz."
-                </h2>
-                <p class="text-cyan-400 text-sm font-semibold mt-2">Dezenformasyon ve Yanıltıcı İçerikle Mücadele</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-200 mb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-bullhorn text-rose-400"></i> Bilgi Dürüstlüğü
-                        </h3>
-                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
-                            Sosyal medya, bloglar ve web siteleri üzerinden sahte haber üretmek, insanları manipüle etmek veya dezenformasyon yaymak bilgi ekosistemini zehirler.
-                        </p>
-                        <ul class="text-xs text-slate-400 space-y-2">
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-xmark text-rose-400"></i> Yapay Zeka ile sahte görseller/videolar (Deepfake) üretip yaymak.</li>
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-xmark text-rose-400"></i> Bot ağları kurarak kamuoyunu kasten yanıltmak.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <div class="text-xs font-bold text-rose-400 uppercase tracking-wider mb-2">Örnek Senaryo</div>
-                        <h4 class="text-base font-bold text-white mb-2">Sağlık Veya Borsa Alanında Sahte Haberler</h4>
-                        <p class="text-slate-300 text-xs leading-relaxed">
-                            Finansal piyasaları düşürmek için sahte şirket haberleri yaymak veya salgın döneminde panik yaratacak asılsız sağlık tavsiyeleri paylaşmak. Doğrulanmamış bilgiyi yaymak etik sorumluluk doğurur.
-                        </p>
-                    </div>
-                    <div class="mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-[11px] text-rose-300">
-                        <strong>Dijital Sorumluluk:</strong> Paylaş butonuna basmadan önce bilginin kaynağını doğrulamak her kullanıcının görevidir.
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SLIDE 8: PRINCIPLE 6 -->
-        <section class="slide flex-col w-full h-full max-h-[720px] glass-card rounded-3xl p-6 md:p-10 border border-slate-700/50 overflow-y-auto custom-scroll">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold">
-                    <i class="fa-solid fa-6"></i> İLKE 06 / 10
-                </div>
-                <span class="text-xs text-slate-400">Temel Kural: Yazılım Lisansı & Telif</span>
-            </div>
-
-            <div class="mb-6">
-                <h2 class="text-2xl sm:text-4xl font-bold font-heading text-white leading-tight">
-                    "Bedeli ödenmeyen yazılım kopyalanamaz ve kullanılamaz."
-                </h2>
-                <p class="text-cyan-400 text-sm font-semibold mt-2">Yazılım Korsanlığı ve Telif Haklarına Saygı</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-200 mb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-compact-disc text-sky-400"></i> Yazılım Emeğine Saygı
-                        </h3>
-                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
-                            Yazılımlar yoğun emek ve yatırım gerektiren fikri ürünlerdir. Lisanssız, kırılmış (crack'li) yazılım kullanmak veya ticari programları izinsiz çoğaltmak yazılımcıların emeğini çalmaktır.
-                        </p>
-                        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300">
-                            <strong>Açık Kaynak İstisnası:</strong> Lisansı açık kaynak (GPL, MIT vb.) veya ücretsiz (Freeware) olan yazılımlar kural dahilinde serbestçe kullanılabilir.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <div class="text-xs font-bold text-sky-400 uppercase tracking-wider mb-2">Örnek Senaryo</div>
-                        <h4 class="text-base font-bold text-white mb-2">Şirketlerde Lisanssız İllüstrasyon / Tasarım Yazılımı</h4>
-                        <p class="text-slate-300 text-xs leading-relaxed">
-                            Bir mimarlık veya tasarım firmasının maliyetten kaçınmak için 50 bilgisayara korsan CAD veya grafik programı kurması. Bu hem yasal bir suç hem de etik bir hak ihlalidir.
-                        </p>
-                    </div>
-                    <div class="mt-4 p-3 rounded-xl bg-sky-500/10 border border-sky-500/30 text-[11px] text-sky-300">
-                        <strong>Kural:</strong> Bir ürünün dijital ve kopyalanabilir olması, onun ücretsiz olduğu anlamına gelmez.
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SLIDE 9: PRINCIPLE 7 -->
-        <section class="slide flex-col w-full h-full max-h-[720px] glass-card rounded-3xl p-6 md:p-10 border border-slate-700/50 overflow-y-auto custom-scroll">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold">
-                    <i class="fa-solid fa-7"></i> İLKE 07 / 10
-                </div>
-                <span class="text-xs text-slate-400">Temel Kural: Kaynak Kullanımı</span>
-            </div>
-
-            <div class="mb-6">
-                <h2 class="text-2xl sm:text-4xl font-bold font-heading text-white leading-tight">
-                    "Başka insanların bilgisayar kaynakları izin almadan kullanılamaz."
-                </h2>
-                <p class="text-cyan-400 text-sm font-semibold mt-2">Sistem ve Donanım Kaynaklarının Yetkisiz Kullanımı</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-200 mb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-server text-teal-400"></i> Donanım & Ağ Yetkisi
-                        </h3>
-                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
-                            Sunucular, işlemci gücü, depolama alanları ve internet ağları maliyetli kaynaklardır. Sahibinin izni olmadan başkasına ait donanım veya ağı kullanmak kaynak gaspıdır.
-                        </p>
-                        <ul class="text-xs text-slate-400 space-y-2">
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-microchip text-teal-400"></i> Cryptojacking: Başkasının bilgisayarında gizlice kripto madencilik yapmak.</li>
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-wifi text-teal-400"></i> Komşunun Wi-Fi ağını izinsiz ve şifresiz kırıp kullanmak.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <div class="text-xs font-bold text-teal-400 uppercase tracking-wider mb-2">Örnek Senaryo</div>
-                        <h4 class="text-base font-bold text-white mb-2">Şirket Sunucularında Kişisel Veri Arşivleme</h4>
-                        <p class="text-slate-300 text-xs leading-relaxed">
-                            Bir çalışanın, çalıştığı kurumun bulut sunucularına izin almadan yüzlerce gigabaytlık kişisel film ve oyun arşivini depolayarak bant genişliğini tüketmesi.
-                        </p>
-                    </div>
-                    <div class="mt-4 p-3 rounded-xl bg-teal-500/10 border border-teal-500/30 text-[11px] text-teal-300">
-                        <strong>İlke Özeti:</strong> "Benim değilse ve izin almadıysam, o sistem kaynağını tüketemem."
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SLIDE 10: PRINCIPLE 8 -->
-        <section class="slide flex-col w-full h-full max-h-[720px] glass-card rounded-3xl p-6 md:p-10 border border-slate-700/50 overflow-y-auto custom-scroll">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold">
-                    <i class="fa-solid fa-8"></i> İLKE 08 / 10
-                </div>
-                <span class="text-xs text-slate-400">Temel Kural: Fikri Mülkiyet & İntihal</span>
-            </div>
-
-            <div class="mb-6">
-                <h2 class="text-2xl sm:text-4xl font-bold font-heading text-white leading-tight">
-                    "Başka insanların entelektüel bilgileri başkasına mal edilemez."
-                </h2>
-                <p class="text-cyan-400 text-sm font-semibold mt-2">İntihal (Plagiarism) ve Fikri Mülkiyet Hakları</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-200 mb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-pen-nib text-orange-400"></i> Fikir ve Eser Hırsızlığı
-                        </h3>
-                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
-                            İnternette bulunan yazılar, kod blokları, dijital tasarımlar veya fikirler kaynak gösterilmeden "kendi eseriymiş gibi" sunulamaz.
-                        </p>
-                        <ul class="text-xs text-slate-400 space-y-2">
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-copy text-orange-400"></i> Başkasının açık kaynak kodunu kopyalayıp lisans metnini silmek.</li>
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-copy text-orange-400"></i> Makale veya dijital içerikleri kaynak belirtmeden kopyala-yapıştır yapmak.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <div class="text-xs font-bold text-orange-400 uppercase tracking-wider mb-2">Örnek Senaryo</div>
-                        <h4 class="text-base font-bold text-white mb-2">Kod Hırsızlığı ve Lisans İhlali</h4>
-                        <p class="text-slate-300 text-xs leading-relaxed">
-                            Bir yazılımcının GitHub'da gördüğü özgün bir algoritmayı alıp, orijinal sahibinin adını kaldırarak kendi ürünü gibi satması. Doğru yaklaşım: Lisansa uymak ve atıfta (citation) bulunmaktır.
-                        </p>
-                    </div>
-                    <div class="mt-4 p-3 rounded-xl bg-orange-500/10 border border-orange-500/30 text-[11px] text-orange-300">
-                        <strong>Atıf Kültürü:</strong> Emeğe saygı göstermek ve kaynağı belirtmek dijital etik yetkinliğin en net göstergesidir.
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SLIDE 11: PRINCIPLE 9 -->
-        <section class="slide flex-col w-full h-full max-h-[720px] glass-card rounded-3xl p-6 md:p-10 border border-slate-700/50 overflow-y-auto custom-scroll">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold">
-                    <i class="fa-solid fa-9"></i> İLKE 09 / 10
-                </div>
-                <span class="text-xs text-slate-400">Temel Kural: Toplumsal Sorumluluk</span>
-            </div>
-
-            <div class="mb-6">
-                <h2 class="text-2xl sm:text-4xl font-bold font-heading text-white leading-tight">
-                    "Kişi yazdığı programın sosyal hayata etkilerini dikkate almalıdır."
-                </h2>
-                <p class="text-cyan-400 text-sm font-semibold mt-2">Yazılım Mühendisliği ve Algoritmik Etik</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-200 mb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-users text-pink-400"></i> Kodun Toplumsal Etkisi
-                        </h3>
-                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
-                            Yazılımcılar ve mühendisler sadece çalışan sistemler değil; toplumu yönlendiren araçlar üretirler. Algoritmaların bağımlılık, ayrımcılık veya güvenlik riski yaratmaması gerekir.
-                        </p>
-                        <ul class="text-xs text-slate-400 space-y-2">
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-robot text-pink-400"></i> Yapay Zeka modellerinde ırk, cinsiyet veya inanç yanlılığı (bias).</li>
-                            <li class="flex items-center gap-2"><li class="flex items-center gap-2"><i class="fa-solid fa-mobile-screen-button text-pink-400"></i> Kullanıcıları manipüle eden karanlık arayüz tasarımları (Dark Patterns).</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <div class="text-xs font-bold text-pink-400 uppercase tracking-wider mb-2">Örnek Senaryo</div>
-                        <h4 class="text-base font-bold text-white mb-2">Ayrımcı İşe Alım Algoritması</h4>
-                        <p class="text-slate-300 text-xs leading-relaxed">
-                            Geçmiş verilerdeki önyargıları öğrenerek kadın adayların CV'lerini otomatik elen bir insan kaynakları yazılımı geliştirmek. Yazılımcı kodunun toplumsal adalet üzerindeki etkisinden sorumludur.
-                        </p>
-                    </div>
-                    <div class="mt-4 p-3 rounded-xl bg-pink-500/10 border border-pink-500/30 text-[11px] text-pink-300">
-                        <strong>Geliştirici Sorumluluğu:</strong> "Sadece emredileni kodladım" demek etik sorumluluğu ortadan kaldırmaz.
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SLIDE 12: PRINCIPLE 10 -->
-        <section class="slide flex-col w-full h-full max-h-[720px] glass-card rounded-3xl p-6 md:p-10 border border-slate-700/50 overflow-y-auto custom-scroll">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold">
-                    <i class="fa-solid fa-1"></i><i class="fa-solid fa-0"></i> İLKE 10 / 10
-                </div>
-                <span class="text-xs text-slate-400">Temel Kural: Dijital Nezaket & Saygı</span>
-            </div>
-
-            <div class="mb-6">
-                <h2 class="text-2xl sm:text-4xl font-bold font-heading text-white leading-tight">
-                    "Kişi, bilgisayarı diğer insanları dikkate alarak ve saygı göstererek kullanmalıdır."
-                </h2>
-                <p class="text-cyan-400 text-sm font-semibold mt-2">Dijital Yurttaşlık ve İnternet Nezaketi (Netiquette)</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-200 mb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-heart text-cyan-400"></i> Dijital İnsan İlişkileri
-                        </h3>
-                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
-                            Ekran arkasında gerçek insanların var olduğu unutulmamalıdır. Dijital ortamlarda iletişim kurarken nezaket, empati ve insan onuruna saygı esastır.
-                        </p>
-                        <ul class="text-xs text-slate-400 space-y-2">
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-cyan-400"></i> Sosyal medya ve forumlarda nefret söyleminden kaçınmak.</li>
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-cyan-400"></i> Çevrim içi tartışmalarda yapıcı ve nazik bir dil benimsemek.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-                    <div>
-                        <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2">Örnek Senaryo</div>
-                        <h4 class="text-base font-bold text-white mb-2">Açık Kaynak Topluluklarında İletişim</h4>
-                        <p class="text-slate-300 text-xs leading-relaxed">
-                            GitHub veya StackOverflow gibi platformlarda acemi bir yazılımcının sorusuna hakaret içeren kırıcı yanıtlar vermek yerine, yardımsever ve yol gösterici bir yaklaşım sergilemek.
-                        </p>
-                    </div>
-                    <div class="mt-4 p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-[11px] text-cyan-300">
-                        <strong>Altın Kural:</strong> Gerçek hayatta yüz yüze söyleyemeyeceğiniz hiçbir şeyi klavye arkasından yazmayın.
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SLIDE 13: INTERACTIVE SUMMARY & CHECKLIST -->
-        <section class="slide flex-col w-full h-full max-h-[720px] glass-card rounded-3xl p-6 md:p-8 border border-slate-700/50 overflow-y-auto custom-scroll">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
-                <div>
-                    <span class="text-xs font-bold text-cyan-400 tracking-wider uppercase">Özet & İnteraktif Kontrol Paneli</span>
-                    <h2 class="text-xl sm:text-3xl font-bold font-heading text-white">10 Temel İlke Özeti & Dijital Öz Değerlendirme</h2>
-                </div>
-                <button onclick="resetChecklist()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors">
-                    <i class="fa-solid fa-rotate-right mr-1"></i> Sıfırla
-                </button>
-            </div>
-
-            <!-- Grid of 10 Principles Interactive Checklist -->
-            <p class="text-xs text-slate-400 mb-4">Aşağıdaki maddelere tıklayarak kendi dijital etik duruşunuzu test edin ve detaylarını hatırlayın:</p>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
-                <!-- Item 1 -->
-                <div onclick="toggleCheck(this)" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-all flex flex-col justify-between group">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-bold text-cyan-400">İlke 01</span>
-                        <div class="check-box w-4 h-4 rounded border border-slate-700 flex items-center justify-center text-[10px] text-transparent group-[.checked]:bg-cyan-500 group-[.checked]:border-cyan-500 group-[.checked]:text-white">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
-                    </div>
-                    <div class="text-xs font-semibold text-slate-200">Zarar Vermeme</div>
-                    <div class="text-[10px] text-slate-400 mt-1">Virüs/Saldırı yok</div>
-                </div>
-
-                <!-- Item 2 -->
-                <div onclick="toggleCheck(this)" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-all flex flex-col justify-between group">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-bold text-amber-400">İlke 02</span>
-                        <div class="check-box w-4 h-4 rounded border border-slate-700 flex items-center justify-center text-[10px] text-transparent group-[.checked]:bg-cyan-500 group-[.checked]:border-cyan-500 group-[.checked]:text-white">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
-                    </div>
-                    <div class="text-xs font-semibold text-slate-200">İşe Karışmama</div>
-                    <div class="text-[10px] text-slate-400 mt-1">Sabotaj etmeme</div>
-                </div>
-
-                <!-- Item 3 -->
-                <div onclick="toggleCheck(this)" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-all flex flex-col justify-between group">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-bold text-emerald-400">İlke 03</span>
-                        <div class="check-box w-4 h-4 rounded border border-slate-700 flex items-center justify-center text-[10px] text-transparent group-[.checked]:bg-cyan-500 group-[.checked]:border-cyan-500 group-[.checked]:text-white">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
-                    </div>
-                    <div class="text-xs font-semibold text-slate-200">Mahremiyet</div>
-                    <div class="text-[10px] text-slate-400 mt-1">Dosya kurcalamama</div>
-                </div>
-
-                <!-- Item 4 -->
-                <div onclick="toggleCheck(this)" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-all flex flex-col justify-between group">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-bold text-purple-400">İlke 04</span>
-                        <div class="check-box w-4 h-4 rounded border border-slate-700 flex items-center justify-center text-[10px] text-transparent group-[.checked]:bg-cyan-500 group-[.checked]:border-cyan-500 group-[.checked]:text-white">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
-                    </div>
-                    <div class="text-xs font-semibold text-slate-200">Dürüstlük</div>
-                    <div class="text-[10px] text-slate-400 mt-1">Hırsızlık yapmama</div>
-                </div>
-
-                <!-- Item 5 -->
-                <div onclick="toggleCheck(this)" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-all flex flex-col justify-between group">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-bold text-rose-400">İlke 05</span>
-                        <div class="check-box w-4 h-4 rounded border border-slate-700 flex items-center justify-center text-[10px] text-transparent group-[.checked]:bg-cyan-500 group-[.checked]:border-cyan-500 group-[.checked]:text-white">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
-                    </div>
-                    <div class="text-xs font-semibold text-slate-200">Doğru Bilgi</div>
-                    <div class="text-[10px] text-slate-400 mt-1">Sahte haber yaymama</div>
-                </div>
-
-                <!-- Item 6 -->
-                <div onclick="toggleCheck(this)" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-all flex flex-col justify-between group">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-bold text-sky-400">İlke 06</span>
-                        <div class="check-box w-4 h-4 rounded border border-slate-700 flex items-center justify-center text-[10px] text-transparent group-[.checked]:bg-cyan-500 group-[.checked]:border-cyan-500 group-[.checked]:text-white">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
-                    </div>
-                    <div class="text-xs font-semibold text-slate-200">Lisans Saygısı</div>
-                    <div class="text-[10px] text-slate-400 mt-1">Korsana hayır</div>
-                </div>
-
-                <!-- Item 7 -->
-                <div onclick="toggleCheck(this)" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-all flex flex-col justify-between group">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-bold text-teal-400">İlke 07</span>
-                        <div class="check-box w-4 h-4 rounded border border-slate-700 flex items-center justify-center text-[10px] text-transparent group-[.checked]:bg-cyan-500 group-[.checked]:border-cyan-500 group-[.checked]:text-white">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
-                    </div>
-                    <div class="text-xs font-semibold text-slate-200">Kaynak İzni</div>
-                    <div class="text-[10px] text-slate-400 mt-1">Yetkisiz donanım yok</div>
-                </div>
-
-                <!-- Item 8 -->
-                <div onclick="toggleCheck(this)" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-all flex flex-col justify-between group">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-bold text-orange-400">İlke 08</span>
-                        <div class="check-box w-4 h-4 rounded border border-slate-700 flex items-center justify-center text-[10px] text-transparent group-[.checked]:bg-cyan-500 group-[.checked]:border-cyan-500 group-[.checked]:text-white">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
-                    </div>
-                    <div class="text-xs font-semibold text-slate-200">Fikri Haklar</div>
-                    <div class="text-[10px] text-slate-400 mt-1">İntihal yapmama</div>
-                </div>
-
-                <!-- Item 9 -->
-                <div onclick="toggleCheck(this)" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-all flex flex-col justify-between group">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-bold text-pink-400">İlke 09</span>
-                        <div class="check-box w-4 h-4 rounded border border-slate-700 flex items-center justify-center text-[10px] text-transparent group-[.checked]:bg-cyan-500 group-[.checked]:border-cyan-500 group-[.checked]:text-white">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
-                    </div>
-                    <div class="text-xs font-semibold text-slate-200">Sosyal Etki</div>
-                    <div class="text-[10px] text-slate-400 mt-1">Toplumsal sorumluluk</div>
-                </div>
-
-                <!-- Item 10 -->
-                <div onclick="toggleCheck(this)" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-all flex flex-col justify-between group">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-bold text-cyan-400">İlke 10</span>
-                        <div class="check-box w-4 h-4 rounded border border-slate-700 flex items-center justify-center text-[10px] text-transparent group-[.checked]:bg-cyan-500 group-[.checked]:border-cyan-500 group-[.checked]:text-white">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
-                    </div>
-                    <div class="text-xs font-semibold text-slate-200">Dijital Saygı</div>
-                    <div class="text-[10px] text-slate-400 mt-1">İnsan haklarına uymak</div>
-                </div>
-            </div>
-
-            <!-- Conclusion Box -->
-            <div class="p-5 rounded-2xl bg-gradient-to-r from-cyan-950/40 via-slate-900 to-indigo-950/40 border border-cyan-500/30 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shrink-0">
-                        <i class="fa-solid fa-graduation-cap"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-sm font-bold text-white">Etik Standartlar Sürdürülebilir Dijital Gelecektir</h4>
-                        <p class="text-xs text-slate-300">Computer Ethics Institute'in 10 ilkesi, güvenli, adil ve insancıl bir dijital ekosistemin omurgasıdır.</p>
-                    </div>
-                </div>
-                <button onclick="goToSlide(0)" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-bold transition-all border border-slate-700 whitespace-nowrap">
-                    <i class="fa-solid fa-rotate-left mr-1.5"></i> Başa Dön
-                </button>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Navigation Bar (Bottom Controls) -->
-    <footer class="relative z-20 w-full px-6 py-4 flex items-center justify-between border-t border-slate-800/60 bg-slate-950/60 backdrop-blur-md">
-        <!-- Prev Button -->
-        <button id="prev-btn" onclick="prevSlide()" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center gap-2 text-sm font-semibold">
-            <i class="fa-solid fa-chevron-left"></i>
-            <span class="hidden sm:inline">Önceki</span>
-        </button>
-
-        <!-- Keyboard Shortcut Hint -->
-        <div class="hidden md:flex items-center gap-2 text-xs text-slate-400 bg-slate-900/80 px-4 py-1.5 rounded-full border border-slate-800">
-            <span>Gezinmek için <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-cyan-400 font-mono">←</kbd> <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-cyan-400 font-mono">→</kbd> tuşlarını kullanın</span>
+            <p class="text-base text-slate-400 mt-10">Özlem Yılmaz tarafından hazırlanmıştır</p>
         </div>
+    </div>
 
-        <!-- Next Button -->
-        <button id="next-btn" onclick="nextSlide()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:opacity-95 text-white font-semibold transition-all flex items-center gap-2 text-sm shadow-md shadow-cyan-500/20">
-            <span class="hidden sm:inline">Sonraki</span>
-            <i class="fa-solid fa-chevron-right"></i>
-        </button>
-    </footer>
-
-    <!-- SLIDE OVERVIEW GRID MODAL -->
-    <div id="grid-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-xl hidden flex-col p-6 md:p-10 transition-all">
-        <div class="flex items-center justify-between mb-8 max-w-7xl mx-auto w-full">
-            <div>
-                <h3 class="text-2xl font-bold font-heading text-white">Tüm Slaytlar Overview</h3>
-                <p class="text-xs text-slate-400">Gitmek istediğiniz slayta doğrudan tıklayın</p>
+    <!-- SLIDE 2: Introduction -->
+    <div id="slide-2" class="slide flex flex-col p-10 bg-cei-secondary/50">
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+            <h2 class="text-4xl font-bold text-cei-accent-cyan">Giriş ve Bilişim Etiği</h2>
+            <div class="glass-card px-4 py-2 rounded-xl text-cei-accent-violet font-semibold text-lg">
+                CEI NEDİR?
             </div>
-            <button onclick="toggleGridModal()" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center text-lg">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-7xl mx-auto w-full overflow-y-auto custom-scroll pr-2 flex-1">
-            <!-- Modal Grid Items injected via JS -->
-            <div onclick="jumpFromModal(0)" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-cyan-500 cursor-pointer transition-all hover:scale-105">
-                <div class="text-xs font-bold text-cyan-400 mb-1">01. Başlık</div>
-                <div class="text-xs text-slate-200 font-semibold line-clamp-2">Giriş ve Başlık Slaytı</div>
+        </header>
+        <div class="grid md:grid-cols-2 gap-10 items-center grow">
+            <div class="space-y-6 text-xl text-slate-200 leading-relaxed">
+                <p><span class="text-2xl font-semibold text-cei-accent-cyan">Bilişim Etiği</span>, bilgisayar ve bilgi sistemlerinin kullanımı sırasında uyulması gereken ahlaki kuralları ve ilkeleri inceler. Teknolojinin doğru, adil ve başkalarının haklarını ihlal etmeyecek şekilde kullanılmasını amaçlar.</p>
+                <p><span class="font-semibold text-cei-accent-indigo">Computer Ethics Institute (CEI)</span>, bilgisayar etiği konusunda standartlar belirleyen, eğitim veren and bu alandaki farkındalığı artırmaya çalışan kâr amacı gütmeyen bir kuruluştur.</p>
+                <p class="italic text-slate-400">Geliştirdikleri 10 ilke, dijital dünyada doğru ve yanlış arasındaki çizgiyi çeker.</p>
             </div>
-            <div onclick="jumpFromModal(1)" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-cyan-500 cursor-pointer transition-all hover:scale-105">
-                <div class="text-xs font-bold text-cyan-400 mb-1">02. Giriş</div>
-                <div class="text-xs text-slate-200 font-semibold line-clamp-2">Bilişim Etiği & CEI Nedir?</div>
-            </div>
-            <div onclick="jumpFromModal(2)" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-cyan-500 cursor-pointer transition-all hover:scale-105">
-                <div class="text-xs font-bold text-cyan-400 mb-1">03. İlke 1</div>
-                <div class="text-xs text-slate-200 font-semibold line-clamp-2">Zarar Vermeme</div>
-            </div>
-            <div onclick="jumpFromModal(3)" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-cyan-500 cursor-pointer transition-all hover:scale-105">
-                <div class="text-xs font-bold text-cyan-400 mb-1">04. İlke 2</div>
-                <div class="text-xs text-slate-200 font-semibold line-clamp-2">Çalışmalara Saygı</div>
-            </div>
-            <div onclick="jumpFromModal(4)" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-cyan-500 cursor-pointer transition-all hover:scale-105">
-                <div class="text-xs font-bold text-cyan-400 mb-1">05. İlke 3</div>
-                <div class="text-xs text-slate-200 font-semibold line-clamp-2">Gizlilik ve Mahremiyet</div>
-            </div>
-            <div onclick="jumpFromModal(5)" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-cyan-500 cursor-pointer transition-all hover:scale-105">
-                <div class="text-xs font-bold text-cyan-400 mb-1">06. İlke 4</div>
-                <div class="text-xs text-slate-200 font-semibold line-clamp-2">Siber Hırsızlık</div>
-            </div>
-            <div onclick="jumpFromModal(6)" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-cyan-500 cursor-pointer transition-all hover:scale-105">
-                <div class="text-xs font-bold text-cyan-400 mb-1">07. İlke 5</div>
-                <div class="text-xs text-slate-200 font-semibold line-clamp-2">Doğruluk & Yalan Bilgi</div>
-            </div>
-            <div onclick="jumpFromModal(7)" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-cyan-500 cursor-pointer transition-all hover:scale-105">
-                <div class="text-xs font-bold text-cyan-400 mb-1">08. İlke 6</div>
-                <div class="text-xs text-slate-200 font-semibold line-clamp-2">Yazılım Lisansı & Telif</div>
-            </div>
-            <div onclick="jumpFromModal(8)" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-cyan-500 cursor-pointer transition-all hover:scale-105">
-                <div class="text-xs font-bold text-cyan-400 mb-1">09. İlke 7</div>
-                <div class="text-xs text-slate-200 font-semibold line-clamp-2">Kaynak Kullanımı</div>
-            </div>
-            <div onclick="jumpFromModal(9)" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-cyan-500 cursor-pointer transition-all hover:scale-105">
-                <div class="text-xs font-bold text-cyan-400 mb-1">10. İlke 8</div>
-                <div class="text-xs text-slate-200 font-semibold line-clamp-2">Fikri Haklar & İntihal</div>
-            </div>
-            <div onclick="jumpFromModal(10)" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-cyan-500 cursor-pointer transition-all hover:scale-105">
-                <div class="text-xs font-bold text-cyan-400 mb-1">11. İlke 9</div>
-                <div class="text-xs text-slate-200 font-semibold line-clamp-2">Toplumsal Sorumluluk</div>
-            </div>
-            <div onclick="jumpFromModal(11)" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-cyan-500 cursor-pointer transition-all hover:scale-105">
-                <div class="text-xs font-bold text-cyan-400 mb-1">12. İlke 10</div>
-                <div class="text-xs text-slate-200 font-semibold line-clamp-2">Dijital Nezaket & Saygı</div>
-            </div>
-            <div onclick="jumpFromModal(12)" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-cyan-500 cursor-pointer transition-all hover:scale-105">
-                <div class="text-xs font-bold text-cyan-400 mb-1">13. Özet</div>
-                <div class="text-xs text-slate-200 font-semibold line-clamp-2">İnteraktif Kontrol Paneli</div>
+            <div class="glass-card p-6 rounded-2xl border border-white/10 shadow-lg glowing-image-frame overflow-hidden">
+                <img src="image_1.png" alt="Bilişim Etiği Kavramsal İllüstrasyonu - CEI Odağı" class="w-full h-full object-cover rounded-xl"/>
             </div>
         </div>
     </div>
 
-    <!-- JS Logic -->
-    <script>
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.slide');
-        const totalSlides = slides.length;
+    <!-- SLIDE 3: Principle 1 -->
+    <div id="slide-3" class="slide flex flex-col p-10 bg-cei-secondary/50">
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+            <h2 class="text-4xl font-bold text-cei-accent-cyan">İlke 1</h2>
+            <div class="glass-card px-4 py-2 rounded-xl text-cei-accent-violet font-semibold text-lg">ZARAR VERMEME</div>
+        </header>
+        <div class="grid md:grid-cols-3 gap-10 items-center grow">
+            <div class="md:col-span-1 flex flex-col items-center text-center glass-card p-8 rounded-2xl shadow-glow-cyan">
+                <i class="fas fa-handshake-slash principle-icon mb-6"></i>
+                <h3 class="text-2xl font-bold text-white leading-snug">Bilgisayar başka insanlara zarar vermek için kullanılamaz.</h3>
+            </div>
+            <div class="md:col-span-2 space-y-8 glass-card p-10 rounded-2xl border border-white/10">
+                <div class="flex items-start gap-5">
+                    <i class="fas fa-ban text-cei-accent-violet text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-white">Temel Kapsam:</h4>
+                        <p class="text-lg text-slate-300">Bu ilke, teknolojiyi kötü amaçlarla kullanmayı yasaklar. Başkalarının fiziksel, duygusal veya dijital güvenliğini tehdit etmek kabul edilemez.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-5 bg-red-950/30 p-5 rounded-xl border border-red-500/30">
+                    <i class="fas fa-exclamation-triangle text-red-400 text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-red-200">İhlal Örnekleri:</h4>
+                        <p class="text-lg text-red-100">Siber zorbalık, tehdit mesajları göndermek, sahte kimlik ile taciz, virüs yazıp yaymak.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        document.getElementById('total-slides-num').textContent = totalSlides;
+    <!-- SLIDE 4: Principle 2 -->
+    <div id="slide-4" class="slide flex flex-col p-10 bg-cei-secondary/50">
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+            <h2 class="text-4xl font-bold text-cei-accent-cyan">İlke 2</h2>
+            <div class="glass-card px-4 py-2 rounded-xl text-cei-accent-violet font-semibold text-lg">KARIŞTIRMAMA</div>
+        </header>
+        <div class="grid md:grid-cols-3 gap-10 items-center grow">
+            <div class="md:col-span-1 flex flex-col items-center text-center glass-card p-8 rounded-2xl shadow-glow-indigo">
+                <i class="fas fa-users-slash principle-icon mb-6"></i>
+                <h3 class="text-2xl font-bold text-white leading-snug">Başka insanların bilgisayar çalışmaları karıştırılamaz.</h3>
+            </div>
+            <div class="md:col-span-2 space-y-8 glass-card p-10 rounded-2xl border border-white/10">
+                <div class="flex items-start gap-5">
+                    <i class="fas fa-network-wired text-cei-accent-cyan text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-white">Temel Kapsam:</h4>
+                        <p class="text-lg text-slate-300">Diğer kullanıcıların devam eden projelerine, kodlarına veya dijital çalışma alanlarına izinsiz müdahale etmek etik dışıdır.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-5 bg-red-950/30 p-5 rounded-xl border border-red-500/30">
+                    <i class="fas fa-code-branch text-red-400 text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-red-200">İhlal Örnekleri:</h4>
+                        <p class="text-lg text-red-100">Birinin kodunu habersiz değiştirmek, test sunucusunu bozmak, dosya kilidini açıp başkasının çalışmasını engellemek.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        function updateSlideUI() {
-            slides.forEach((slide, index) => {
-                if (index === currentSlide) {
-                    slide.classList.add('active');
-                } else {
-                    slide.classList.remove('active');
-                }
+    <!-- SLIDE 5: Principle 3 -->
+    <div id="slide-5" class="slide flex flex-col p-10 bg-cei-secondary/50">
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+            <h2 class="text-4xl font-bold text-cei-accent-cyan">İlke 3</h2>
+            <div class="glass-card px-4 py-2 rounded-xl text-cei-accent-violet font-semibold text-lg">GİZLİLİK</div>
+        </header>
+        <div class="grid md:grid-cols-3 gap-10 items-center grow">
+            <div class="md:col-span-1 flex flex-col items-center text-center glass-card p-8 rounded-2xl shadow-glow-violet">
+                <i class="fas fa-eye-slash principle-icon mb-6"></i>
+                <h3 class="text-2xl font-bold text-white leading-snug">Bilgisayar ortamında başka insanların dosyaları karıştırılamaz.</h3>
+            </div>
+            <div class="md:col-span-2 space-y-8 glass-card p-10 rounded-2xl border border-white/10">
+                <div class="flex items-start gap-5">
+                    <i class="fas fa-user-secret text-cei-accent-cyan text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-white">Temel Kapsam:</h4>
+                        <p class="text-lg text-slate-300">Kişisel verilere ve özel dosyalara gizlice erişmek, bunları kopyalamak veya okumak en büyük gizlilik ihlallerinden biridir.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-5 bg-red-950/30 p-5 rounded-xl border border-red-500/30">
+                    <i class="fas fa-file-signature text-red-400 text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-red-200">İhlal Örnekleri:</h4>
+                        <p class="text-lg text-red-100">Şifre kırıp başkasının e-postalarını okumak, paylaşılan klasördeki özel dosyaları açmak, veri sızıntısı yapmak.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: Principle 4 -->
+    <div id="slide-6" class="slide flex flex-col p-10 bg-cei-secondary/50">
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+            <h2 class="text-4xl font-bold text-cei-accent-cyan">İlke 4</h2>
+            <div class="glass-card px-4 py-2 rounded-xl text-cei-accent-violet font-semibold text-lg">HIRSIZLIK</div>
+        </header>
+        <div class="grid md:grid-cols-3 gap-10 items-center grow">
+            <div class="md:col-span-1 flex flex-col items-center text-center glass-card p-8 rounded-2xl shadow-glow-cyan">
+                <i class="fas fa-mask-bandit principle-icon mb-6"></i>
+                <h3 class="text-2xl font-bold text-white leading-snug">Bilgisayar hırsızlık yapmak için kullanılamaz.</h3>
+            </div>
+            <div class="md:col-span-2 space-y-8 glass-card p-10 rounded-2xl border border-white/10">
+                <div class="flex items-start gap-5">
+                    <i class="fas fa-key text-cei-accent-indigo text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-white">Temel Kapsam:</h4>
+                        <p class="text-lg text-slate-300">Dijital dünyadaki varlıkların, bilgilerin veya fikri mülkiyetin çalınması amacıyla bilgisayar sistemleri araç olarak kullanılamaz.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-5 bg-red-950/30 p-5 rounded-xl border border-red-500/30">
+                    <i class="fas fa-file-contract text-red-400 text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-red-200">İhlal Örnekleri:</h4>
+                        <p class="text-lg text-red-100">Kredi kartı bilgilerini çalarak harcama yapmak, dijital kimlik hırsızlığı, bir şirketin veritabanını çalıp satmak.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: Principle 5 -->
+    <div id="slide-7" class="slide flex flex-col p-10 bg-cei-secondary/50">
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+            <h2 class="text-4xl font-bold text-cei-accent-cyan">İlke 5</h2>
+            <div class="glass-card px-4 py-2 rounded-xl text-cei-accent-violet font-semibold text-lg">YALAN BİLGİ</div>
+        </header>
+        <div class="grid md:grid-cols-3 gap-10 items-center grow">
+            <div class="md:col-span-1 flex flex-col items-center text-center glass-card p-8 rounded-2xl shadow-glow-indigo">
+                <i class="fas fa-newspaper-slash principle-icon mb-6"></i>
+                <h3 class="text-2xl font-bold text-white leading-snug">Bilgisayar yalan bilgiyi yaymak için kullanılamaz.</h3>
+            </div>
+            <div class="md:col-span-2 space-y-8 glass-card p-10 rounded-2xl border border-white/10">
+                <div class="flex items-start gap-5">
+                    <i class="fas fa-bullhorn text-cei-accent-cyan text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-white">Temel Kapsam:</h4>
+                        <p class="text-lg text-slate-300">Dijital mecralarda dezenformasyon, sahte haber, yanıltıcı içerik veya karalama kampanyaları üretmek ve yaymak etik dışıdır.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-5 bg-red-950/30 p-5 rounded-xl border border-red-500/30">
+                    <i class="fas fa-frown-open text-red-400 text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-red-200">İhlal Örnekleri:</h4>
+                        <p class="text-lg text-red-100">Sahte sağlık tavsiyeleri yaymak, manipüle edilmiş videolarla birini karalamak, bot hesaplarla yalan haber trendi oluşturmak.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: Principle 6 -->
+    <div id="slide-8" class="slide flex flex-col p-10 bg-cei-secondary/50">
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+            <h2 class="text-4xl font-bold text-cei-accent-cyan">İlke 6</h2>
+            <div class="glass-card px-4 py-2 rounded-xl text-cei-accent-violet font-semibold text-lg">YAZILIM TELİFİ</div>
+        </header>
+        <div class="grid md:grid-cols-3 gap-10 items-center grow">
+            <div class="md:col-span-1 flex flex-col items-center text-center glass-card p-8 rounded-2xl shadow-glow-violet">
+                <i class="fas fa-file-prescription-slash principle-icon mb-6"></i>
+                <h3 class="text-2xl font-bold text-white leading-snug">Bedeli ödenmeyen yazılım kopyalanamaz ve kullanılamaz.</h3>
+            </div>
+            <div class="md:col-span-2 space-y-8 glass-card p-10 rounded-2xl border border-white/10">
+                <div class="flex items-start gap-5">
+                    <i class="fas fa-dollar-sign text-cei-accent-indigo text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-white">Temel Kapsam:</h4>
+                        <p class="text-lg text-slate-300">Bu ilke fikri mülkiyete ve telif haklarına saygıyı vurgular. Lisanssız veya korsan yazılım kullanmak, kopyalamak veya dağıtmak etik and yasa dışıdır.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-5 bg-red-950/30 p-5 rounded-xl border border-red-500/30">
+                    <i class="fas fa-copy text-red-400 text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-red-200">İhlal Örnekleri:</h4>
+                        <p class="text-lg text-red-100">Korsan oyun veya program indirmek, bir yazılımı izin verilen lisans sayısından fazla bilgisayara kurmak, 'crack' dosyaları yaymak.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: Principle 7 -->
+    <div id="slide-9" class="slide flex flex-col p-10 bg-cei-secondary/50">
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+            <h2 class="text-4xl font-bold text-cei-accent-cyan">İlke 7</h2>
+            <div class="glass-card px-4 py-2 rounded-xl text-cei-accent-violet font-semibold text-lg">İZİNSİZ KAYNAK</div>
+        </header>
+        <div class="grid md:grid-cols-3 gap-10 items-center grow">
+            <div class="md:col-span-1 flex flex-col items-center text-center glass-card p-8 rounded-2xl shadow-glow-cyan">
+                <i class="fas fa-server-slash principle-icon mb-6"></i>
+                <h3 class="text-2xl font-bold text-white leading-snug">Başka insanların bilgisayar kaynakları izin almadan kullanılamaz.</h3>
+            </div>
+            <div class="md:col-span-2 space-y-8 glass-card p-10 rounded-2xl border border-white/10">
+                <div class="flex items-start gap-5">
+                    <i class="fas fa-memory text-cei-accent-cyan text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-white">Temel Kapsam:</h4>
+                        <p class="text-lg text-slate-300">Başkalarına ait sunucu, işlem gücü, ağ, depolama veya elektrik gibi kaynakları sahibinin izni veya haberi olmadan kullanmak etik dışıdır.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-5 bg-red-950/30 p-5 rounded-xl border border-red-500/30">
+                    <i class="fas fa-satellite-dish text-red-400 text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-red-200">İhlal Örnekleri:</h4>
+                        <p class="text-lg text-red-100">Birinin Wi-Fi'ını izinsiz kullanmak, 'crypto-jacking' (başkalarının cihazlarını kripto para madenciliği için kullanmak), bir sunucuyu DDoS saldırısı için kullanmak.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: Principle 8 -->
+    <div id="slide-10" class="slide flex flex-col p-10 bg-cei-secondary/50">
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+            <h2 class="text-4xl font-bold text-cei-accent-cyan">İlke 8</h2>
+            <div class="glass-card px-4 py-2 rounded-xl text-cei-accent-violet font-semibold text-lg">İNTİHAL</div>
+        </header>
+        <div class="grid md:grid-cols-3 gap-10 items-center grow">
+            <div class="md:col-span-1 flex flex-col items-center text-center glass-card p-8 rounded-2xl shadow-glow-indigo">
+                <i class="fas fa-at-slash principle-icon mb-6"></i>
+                <h3 class="text-2xl font-bold text-white leading-snug">Başka insanların entelektüel bilgileri başkasına mal edilemez.</h3>
+            </div>
+            <div class="md:col-span-2 space-y-8 glass-card p-10 rounded-2xl border border-white/10">
+                <div class="flex items-start gap-5">
+                    <i class="fas fa-lightbulb text-cei-accent-indigo text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-white">Temel Kapsam:</h4>
+                        <p class="text-lg text-slate-300">Dijital ortamda yaratılan eserlere, içeriklere ve fikirlere saygı gösterilmeli, intihal yapılmamalıdır. Başkalarının emeği kendi eseriymiş gibi sunulmamalıdır.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-5 bg-red-950/30 p-5 rounded-xl border border-red-500/30">
+                    <i class="fas fa-file-alt text-red-400 text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-red-200">İhlal Örnekleri:</h4>
+                        <p class="text-lg text-red-100">İnternetteki bir makaleyi kaynak göstermeden kendi ödevi gibi sunmak, bir fotoğrafçının görselini izinsiz kendi sitesinde yayınlamak, birinin kodunu kopyalayıp kendine mal etmek.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: Principle 9 -->
+    <div id="slide-11" class="slide flex flex-col p-10 bg-cei-secondary/50">
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+            <h2 class="text-4xl font-bold text-cei-accent-cyan">İlke 9</h2>
+            <div class="glass-card px-4 py-2 rounded-xl text-cei-accent-violet font-semibold text-lg">SOSYAL ETKİ</div>
+        </header>
+        <div class="grid md:grid-cols-3 gap-10 items-center grow">
+            <div class="md:col-span-1 flex flex-col items-center text-center glass-card p-8 rounded-2xl shadow-glow-violet">
+                <i class="fas fa-people-arrows principle-icon mb-6"></i>
+                <h3 class="text-2xl font-bold text-white leading-snug">Kişi yazdığı programın sosyal hayata etkilerini dikkate almalıdır.</h3>
+            </div>
+            <div class="md:col-span-2 space-y-8 glass-card p-10 rounded-2xl border border-white/10">
+                <div class="flex items-start gap-5">
+                    <i class="fas fa-globe text-cei-accent-cyan text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-white">Temel Kapsam:</h4>
+                        <p class="text-lg text-slate-300">Yazılım geliştiriciler and teknoloji üreticileri, yazdıkları kodların and sistemlerin toplumsal, ekonomik and kültürel sonuçlarını önceden değerlendirmelidir.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-5 bg-red-950/30 p-5 rounded-xl border border-red-500/30">
+                    <i class="fas fa-poll text-red-400 text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-red-200">İhlal Örnekleri:</h4>
+                        <p class="text-lg text-red-100">Yapay zeka algoritmalarının ön yargılı olması, bir uygulamanın bağımlılık yapacak şekilde tasarlanması, bir platformun toplumsal kutuplaşmayı artırması.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: Principle 10 -->
+    <div id="slide-12" class="slide flex flex-col p-10 bg-cei-secondary/50">
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+            <h2 class="text-4xl font-bold text-cei-accent-cyan">İlke 10</h2>
+            <div class="glass-card px-4 py-2 rounded-xl text-cei-accent-violet font-semibold text-lg">SAYGI</div>
+        </header>
+        <div class="grid md:grid-cols-3 gap-10 items-center grow">
+            <div class="md:col-span-1 flex flex-col items-center text-center glass-card p-8 rounded-2xl shadow-glow-cyan">
+                <i class="fas fa-user-friends principle-icon mb-6"></i>
+                <h3 class="text-2xl font-bold text-white leading-snug">Kişi, bilgisayarı diğer insanları dikkate alarak and saygı göstererek kullanmalıdır.</h3>
+            </div>
+            <div class="md:col-span-2 space-y-8 glass-card p-10 rounded-2xl border border-white/10">
+                <div class="flex items-start gap-5">
+                    <i class="fas fa-heart text-cei-accent-indigo text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-white">Temel Kapsam:</h4>
+                        <p class="text-lg text-slate-300">Dijital iletişimde and ortak bilgi alanlarında diğer bireylerin haklarına saygı gösterilmelidir. Nezaket kurallarına uyulmalı and ayrımcılık yapılmamalıdır.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-5 bg-red-950/30 p-5 rounded-xl border border-red-500/30">
+                    <i class="fas fa-comment-slash text-red-400 text-3xl mt-1"></i>
+                    <div>
+                        <h4 class="text-xl font-semibold text-red-200">İhlal Örnekleri:</h4>
+                        <p class="text-lg text-red-100">Nefret söylemi, ayrımcı yorumlar yapmak, birinin dijital kimliğiyle alay etmek, birinin haklı bir eleştirisini sansürlemek.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: Summary Checklist -->
+    <div id="slide-13" class="slide flex flex-col p-10 bg-cei-secondary/50">
+        <header class="flex justify-between items-center mb-6 pb-3 border-b border-white/10">
+            <h2 class="text-4xl font-bold text-cei-accent-cyan">Özet Kontrol Listesi</h2>
+            <div class="glass-card px-4 py-2 rounded-xl text-cei-accent-violet font-semibold text-lg">ÖZ-DEĞERLENDİRME</div>
+        </header>
+        <div class="grid md:grid-cols-2 gap-8 grow">
+            <div class="glass-card p-6 rounded-2xl space-y-3 overflow-y-auto max-h-[70vh]">
+                <p class="text-lg text-slate-300 mb-4">Bir dijital eylem yapmadan önce kendinize sorun:</p>
+                <div class="checklist-item flex items-center gap-4 bg-slate-900/50 p-4 rounded-xl border border-white/5 cursor-pointer hover:border-cei-accent-cyan hover:bg-cei-primary/70 transition" data-principle="1">
+                    <i class="far fa-square text-cei-accent-cyan text-2xl"></i>
+                    <span class="text-slate-100 font-medium">Bu eylem başkasına zarar veriyor mu? (İlke 1)</span>
+                </div>
+                <div class="checklist-item flex items-center gap-4 bg-slate-900/50 p-4 rounded-xl border border-white/5 cursor-pointer hover:border-cei-accent-indigo hover:bg-cei-primary/70 transition" data-principle="3">
+                    <i class="far fa-square text-cei-accent-indigo text-2xl"></i>
+                    <span class="text-slate-100 font-medium">Bu eylem bir gizlilik ihlali mi? (İlke 3)</span>
+                </div>
+                <div class="checklist-item flex items-center gap-4 bg-slate-900/50 p-4 rounded-xl border border-white/5 cursor-pointer hover:border-cei-accent-violet hover:bg-cei-primary/70 transition" data-principle="4">
+                    <i class="far fa-square text-cei-accent-violet text-2xl"></i>
+                    <span class="text-slate-100 font-medium">Bu eylem bir hırsızlık mı? (İlke 4)</span>
+                </div>
+                <div class="checklist-item flex items-center gap-4 bg-slate-900/50 p-4 rounded-xl border border-white/5 cursor-pointer hover:border-cei-accent-cyan hover:bg-cei-primary/70 transition" data-principle="6">
+                    <i class="far fa-square text-cei-accent-cyan text-2xl"></i>
+                    <span class="text-slate-100 font-medium">Bu eylem fikri mülkiyet hırsızlığı mı? (İlke 6, 8)</span>
+                </div>
+                <div class="checklist-item flex items-center gap-4 bg-slate-900/50 p-4 rounded-xl border border-white/5 cursor-pointer hover:border-cei-accent-indigo hover:bg-cei-primary/70 transition" data-principle="9">
+                    <i class="far fa-square text-cei-accent-indigo text-2xl"></i>
+                    <span class="text-slate-100 font-medium">Bu eylem sosyal bir zarar veriyor mu? (İlke 9, 10)</span>
+                </div>
+            </div>
+            <div class="glass-card p-10 rounded-2xl border border-white/10 flex flex-col justify-center items-center text-center">
+                <h4 class="text-2xl font-semibold text-white mb-6">Bilişim Etiği Uygulama Panelini Aç/Kapat</h4>
+                <p class="text-slate-300 mb-10 max-w-sm">Her dijital eylemde bu 10 ilkeyi birer pusula olarak kullanın. "EVET" demeden önce iki kez düşünün.</p>
+                <div class="flex gap-4">
+                    <button id="reset-checklist" class="glass-card px-8 py-3 rounded-xl text-red-300 font-semibold border border-red-500/20 hover:bg-red-950 transition">Sıfırla</button>
+                    <button class="glass-card px-8 py-3 rounded-xl text-cei-accent-cyan font-semibold border border-cei-accent-cyan/20 hover:bg-cei-secondary transition">Sonraki Adım</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div> <!-- End Main Slide Container -->
+
+<!-- NAVIGATION CONTROLS -->
+<div class="fixed bottom-4 right-4 z-50 flex gap-3">
+    <button id="prev-btn" class="glass-card p-4 rounded-full text-cei-accent-cyan border border-white/10 hover:text-white" title="Önceki Slayt">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+    <button id="next-btn" class="glass-card p-4 rounded-full text-cei-accent-indigo border border-white/10 hover:text-white" title="Sonraki Slayt">
+        <i class="fas fa-arrow-right"></i>
+    </button>
+</div>
+
+<!-- OVERVIEW MODAL -->
+<div id="slide-overview-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm p-10 overflow-y-auto">
+    <header class="flex justify-between items-center mb-8 pb-3 border-b border-white/10">
+        <h2 class="text-3xl font-bold text-cei-accent-cyan">Slayt Genel Bakış</h2>
+        <button id="close-overview-btn" class="glass-card p-3 rounded-xl text-red-300 border border-red-500/20 hover:bg-red-950 transition">
+            <i class="fas fa-times"></i>
+        </button>
+    </header>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6" id="overview-grid">
+        <!-- Grid Items generated by JS -->
+    </div>
+</div>
+
+<script>
+    const slideContainer = document.getElementById('slide-container');
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const overviewBtn = document.getElementById('overview-btn');
+    const overviewModal = document.getElementById('slide-overview-modal');
+    const overviewGrid = document.getElementById('overview-grid');
+    const closeOverviewBtn = document.getElementById('close-overview-btn');
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+    let currentSlideIndex = 0;
+    const totalSlides = slides.length;
+
+    function showSlide(index) {
+        slides.forEach(slide => {
+            slide.classList.remove('active-slide');
+            slide.classList.add('prev-slide');
+        });
+        slides[index].classList.remove('prev-slide');
+        slides[index].classList.add('active-slide');
+        currentSlideIndex = index;
+        updateProgressBar();
+        updateNavButtons();
+    }
+
+    function nextSlide() {
+        if (currentSlideIndex < totalSlides - 1) {
+            showSlide(currentSlideIndex + 1);
+        }
+    }
+
+    function prevSlide() {
+        if (currentSlideIndex > 0) {
+            showSlide(currentSlideIndex - 1);
+        }
+    }
+
+    function updateProgressBar() {
+        const progress = ((currentSlideIndex + 1) / totalSlides) * 100;
+        progressBar.style.width = `${progress}%`;
+    }
+
+    function updateNavButtons() {
+        prevBtn.disabled = currentSlideIndex === 0;
+        nextBtn.disabled = currentSlideIndex === totalSlides - 1;
+        prevBtn.style.opacity = prevBtn.disabled ? 0.4 : 1;
+        nextBtn.style.opacity = nextBtn.disabled ? 0.4 : 1;
+    }
+
+    function generateOverviewGrid() {
+        overviewGrid.innerHTML = '';
+        slides.forEach((slide, index) => {
+            const titleElement = slide.querySelector('h2');
+            const titleText = titleElement ? titleElement.textContent : 'Kapak';
+            const gridItem = document.createElement('div');
+            gridItem.className = `glass-card p-4 rounded-xl cursor-pointer transition hover:border-cei-accent-cyan hover:scale-105 ${index === currentSlideIndex ? 'border-2 border-cei-accent-indigo' : 'border border-white/10'}`;
+            gridItem.innerHTML = `
+                <div class="font-semibold text-cej-accent-cyan text-sm mb-1">Slide ${index + 1}</div>
+                <div class="text-slate-200 text-xs">${titleText}</div>
+            `;
+            gridItem.addEventListener('click', () => {
+                showSlide(index);
+                closeOverview();
             });
+            overviewGrid.appendChild(gridItem);
+        });
+    }
 
-            // Update Current Slide Indicator
-            document.getElementById('current-slide-num').textContent = currentSlide + 1;
+    function toggleOverview() {
+        if (overviewModal.style.display === 'block') {
+            closeOverview();
+        } else {
+            openOverview();
+        }
+    }
 
-            // Update Progress Bar
-            const progress = (currentSlide / (totalSlides - 1)) * 100;
-            document.getElementById('progress-bar').style.width = `${progress}%`;
+    function openOverview() {
+        overviewModal.style.display = 'block';
+        generateOverviewGrid();
+        document.body.style.overflow = 'hidden';
+    }
 
-            // Update Buttons disabled state
-            document.getElementById('prev-btn').disabled = (currentSlide === 0);
-            
-            const nextBtn = document.getElementById('next-btn');
-            if (currentSlide === totalSlides - 1) {
-                nextBtn.innerHTML = '<span class="hidden sm:inline">Başa Dön</span><i class="fa-solid fa-rotate-left"></i>';
+    function closeOverview() {
+        overviewModal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+            fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        }
+    }
+
+    // Checklist Interactions
+    const checklistItems = document.querySelectorAll('.checklist-item');
+    const resetChecklistBtn = document.getElementById('reset-checklist');
+
+    checklistItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const icon = item.querySelector('i');
+            const principleId = item.getAttribute('data-principle');
+            if (icon.classList.contains('far')) {
+                icon.classList.remove('far', 'fa-square');
+                icon.classList.add('fas', 'fa-check-square');
+                item.classList.add('border-green-500/50', 'bg-green-950/20');
+                // Add Principle Glow effect logic if wanted
             } else {
-                nextBtn.innerHTML = '<span class="hidden sm:inline">Sonraki</span><i class="fa-solid fa-chevron-right"></i>';
-            }
-        }
-
-        function nextSlide() {
-            if (currentSlide < totalSlides - 1) {
-                currentSlide++;
-            } else {
-                currentSlide = 0; // loop back to title
-            }
-            updateSlideUI();
-        }
-
-        function prevSlide() {
-            if (currentSlide > 0) {
-                currentSlide--;
-                updateSlideUI();
-            }
-        }
-
-        function goToSlide(index) {
-            if (index >= 0 && index < totalSlides) {
-                currentSlide = index;
-                updateSlideUI();
-            }
-        }
-
-        // Toggle Grid Modal Overview
-        function toggleGridModal() {
-            const modal = document.getElementById('grid-modal');
-            modal.classList.toggle('hidden');
-            modal.classList.toggle('flex');
-        }
-
-        function jumpFromModal(index) {
-            goToSlide(index);
-            toggleGridModal();
-        }
-
-        // Toggle Fullscreen
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
-                });
-                document.getElementById('fullscreen-icon').className = 'fa-solid fa-compress';
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                    document.getElementById('fullscreen-icon').className = 'fa-solid fa-expand';
-                }
-            }
-        }
-
-        // Keyboard Navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === 'Space' || e.key === 'PageDown') {
-                e.preventDefault();
-                nextSlide();
-            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-                e.preventDefault();
-                prevSlide();
-            } else if (e.key === 'Escape') {
-                const modal = document.getElementById('grid-modal');
-                if (!modal.classList.contains('hidden')) {
-                    toggleGridModal();
-                }
+                icon.classList.add('far', 'fa-square');
+                icon.classList.remove('fas', 'fa-check-square');
+                item.classList.remove('border-green-500/50', 'bg-green-950/20');
             }
         });
+    });
 
-        // Touch Swipe Navigation for Mobile/Tablets
-        let touchStartX = 0;
-        let touchEndX = 0;
+    resetChecklistBtn.addEventListener('click', () => {
+        checklistItems.forEach(item => {
+            const icon = item.querySelector('i');
+            icon.classList.add('far', 'fa-square');
+            icon.classList.remove('fas', 'fa-check-square');
+            item.classList.remove('border-green-500/50', 'bg-green-950/20');
+        });
+    });
 
-        document.addEventListener('touchstart', e => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, false);
+    // Event Listeners
+    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.addEventListener('click', nextSlide);
+    overviewBtn.addEventListener('click', toggleOverview);
+    closeOverviewBtn.addEventListener('click', closeOverview);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
 
-        document.addEventListener('touchend', e => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        }, false);
-
-        function handleSwipe() {
-            const swipeThreshold = 50;
-            if (touchEndX < touchStartX - swipeThreshold) {
-                nextSlide(); // Swipe left -> next
-            }
-            if (touchEndX > touchStartX + swipeThreshold) {
-                prevSlide(); // Swipe right -> prev
-            }
+    // Keyboard Navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+            nextSlide();
+        } else if (e.key === 'ArrowLeft') {
+            prevSlide();
+        } else if (e.key === 'o' || e.key === 'O') {
+            toggleOverview();
+        } else if (e.key === 'f' || e.key === 'F') {
+            toggleFullscreen();
+        } else if (e.key === 'Escape' && overviewModal.style.display === 'block') {
+            closeOverview();
         }
+    });
 
-        // Interactive Checklist on Slide 13
-        function toggleCheck(element) {
-            element.classList.toggle('checked');
-        }
+    // Handle full screen exit with escape
+    document.addEventListener('fullscreenchange', (event) => {
+      if (!document.fullscreenElement) {
+        fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+      }
+    });
 
-        function resetChecklist() {
-            const items = document.querySelectorAll('.check-box');
-            items.forEach(item => {
-                item.parentElement.parentElement.classList.remove('checked');
-            });
-        }
+    // Initialize presentation
+    generateOverviewGrid();
+    showSlide(0);
 
-        // Initialize presentation state on load
-        window.onload = function() {
-            updateSlideUI();
-        };
-    </script>
-</body>
-</html>
+</script>
